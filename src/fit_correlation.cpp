@@ -26,6 +26,12 @@ fit_correlation::fit_correlation(string filename_in, ParameterReader* paraRdr_in
     qnpts = paraRdr->getVal("qnpts");
     q_max = paraRdr->getVal("q_max");
     flag_1D = paraRdr->getVal("flag_1D");
+    flag_gsl_fit = paraRdr->getVal("flag_gsl_fit");
+    if(flag_gsl_fit == 1)
+    {
+        fit_tolarence = paraRdr->getVal("fit_tolarence");
+        fit_max_iterations = paraRdr->getVal("fit_max_iterations");
+    }
 
     q_out = new double [qnpts];
     q_side = new double [qnpts];
@@ -82,10 +88,20 @@ fit_correlation::~fit_correlation()
 void fit_correlation::fit()
 {
     read_in_correlation_functions();
-    if(flag_1D == 1)
-        find_minimum_chisq_correlationfunction_1D();
+    if(flag_gsl_fit == 0)
+    {
+        if(flag_1D == 1)
+            find_minimum_chisq_correlationfunction_1D();
+        else
+            find_minimum_chisq_correlationfunction_3D();
+    }
     else
-        find_minimum_chisq_correlationfunction_3D();
+    {
+        if(flag_1D == 1)
+            fit_Correlationfunction1D_gsl();
+        else
+            fit_Correlationfunction3D_withlambda_gsl();
+    }
 }
 
 void fit_correlation::read_in_correlation_functions()
@@ -357,9 +373,10 @@ void fit_correlation::fit_Correlationfunction1D_gsl()
   {
      Correlfun1D_data.q[i] = q_out[i];
      // This sets up the data to be fitted, with gaussian noise added
-     //Correlfun1D_data.y[i] = 1.0*exp(-10*q_out[i]*q_out[i]);
-     Correlfun1D_data.y[i] = Correl_1D_out[i];
-     Correlfun1D_data.sigma[i] = Correl_1D_out_err[i];
+     Correlfun1D_data.y[i] = 1.0*exp(-10*q_out[i]*q_out[i]);
+     Correlfun1D_data.sigma[i] = 1e-4;
+     //Correlfun1D_data.y[i] = Correl_1D_out[i];
+     //Correlfun1D_data.sigma[i] = Correl_1D_out_err[i];
      //cout << Correlfun1D_data.q[i] << "  " << Correlfun1D_data.y[i] << "  " << Correlfun1D_data.sigma[i] << endl;
   }
 

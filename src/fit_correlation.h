@@ -47,12 +47,12 @@ class fit_correlation
        string filename;
        ParameterReader* paraRdr;
       
-       int qnpts;
        int flag_1D;
+       int flag_gsl_fit;
+
+       int qnpts;
        double q_max;
-       double* q_out;
-       double* q_side;
-       double* q_long;
+       double* q_out, *q_side, *q_long;
 
        double fit_tolarence;
        int fit_max_iterations;
