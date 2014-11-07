@@ -1,0 +1,9 @@
+qnpts = 20                        # number of points for momentum q (difference of the pair momentum) for correlaction function
+
+flag_1D = 1                       # 1: fit 1D correlation function
+                                  # 0: fit 3D correlation function
+
+q_max = 0.1                       # the maximum momentum for q in the fit (GeV)
+
+fit_max_iterations = 1000         # maximum iteration for gaussian fit to get correlation function
+fit_tolarence = 1e-6              # tolarence for gaussian fit
