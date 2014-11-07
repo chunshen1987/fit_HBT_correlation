@@ -143,15 +143,45 @@ void fit_correlation::find_minimum_chisq_correlationfunction_1D()
     double Correl_local;
     double sigma_k_prime;
     double chi_sq;
+
     // 0 for out, 1 for side, and 2 for long
     for(int idir = 0; idir < 3; idir++)
     {
+        int q_max_idx = qnpts;
+        for(int i = 0; i < qnpts; i++)
+        {
+           if(idir == 0)
+           {
+               if(q_out[i] > q_max)
+               {
+                   q_max_idx = i + 1;
+                   break;
+               }
+           }
+           else if(idir == 1)
+           {
+               if(q_side[i] > q_max)
+               {
+                   q_max_idx = i + 1;
+                   break;
+               }
+           }
+           else
+           {
+               if(q_long[i] > q_max)
+               {
+                   q_max_idx = i + 1;
+                   break;
+               }
+           }
+        }
+
         double X0_coeff = 0.0;
         double X2_coeff = 0.0;
         double Y0_coeff = 0.0;
         double Y2_coeff = 0.0;
         double Y4_coeff = 0.0;
-        for(int iq = 0; iq < qnpts; iq++)
+        for(int iq = 0; iq < q_max_idx; iq++)
         {
            if(idir == 0)
            {
@@ -232,13 +262,41 @@ void fit_correlation::find_minimum_chisq_correlationfunction_3D()
     gsl_matrix * T_inverse_gsl = gsl_matrix_alloc (dim, dim);
     gsl_permutation * perm = gsl_permutation_alloc (dim);
 
-    for(int iqout = 0; iqout < qnpts; iqout++)
+    int q_out_idx = qnpts;
+    int q_side_idx = qnpts;
+    int q_long_idx = qnpts;
+    for(int i = 0; i < qnpts; i++)
+    {
+        if(q_out[i] > q_max)
+        {
+            q_out_idx = i + 1;
+            break;
+        }
+    }
+    for(int i = 0; i < qnpts; i++)
+    {
+        if(q_side[i] > q_max)
+        {
+            q_side_idx = i + 1;
+            break;
+        }
+    }
+    for(int i = 0; i < qnpts; i++)
+    {
+        if(q_long[i] > q_max)
+        {
+            q_long_idx = i + 1;
+            break;
+        }
+    }
+
+    for(int iqout = 0; iqout < q_out_idx; iqout++)
     {
         double q_out_local = q_out[iqout];
-        for(int iqside = 0; iqside < qnpts; iqside++)
+        for(int iqside = 0; iqside < q_side_idx; iqside++)
         {
             double q_side_local = q_side[iqside];
-            for(int iqlong = 0; iqlong < qnpts; iqlong++)
+            for(int iqlong = 0; iqlong < q_long_idx; iqlong++)
             {
                 double q_long_local = q_long[iqlong];
                 double correl_local = Correl_3D[iqout][iqside][iqlong];
@@ -351,7 +409,6 @@ void fit_correlation::find_minimum_chisq_correlationfunction_3D()
 // Functions used for multi-dimensional fit
 void fit_correlation::fit_Correlationfunction1D_gsl()
 {
-  const int data_length = qnpts;  // # of points
   const size_t n_para = 2;  // # of parameters
 
   // allocate space for a covariance matrix of size p by p
@@ -362,15 +419,44 @@ void fit_correlation::fit_Correlationfunction1D_gsl()
   const gsl_rng_type *type = gsl_rng_default;
   gsl_rng *rng_ptr = gsl_rng_alloc (type);
 
-  //set up test data
-  struct Correlationfunction1D_data Correlfun1D_data;
-  Correlfun1D_data.data_length = data_length;
-  Correlfun1D_data.q = new double [data_length];
-  Correlfun1D_data.y = new double [data_length];
-  Correlfun1D_data.sigma = new double [data_length];
-
   for(int idir = 0; idir < 3; idir++)
   {
+      int q_max_idx = qnpts;
+      for(int i = 0; i < qnpts; i++)
+      {
+          if(idir == 0)
+          {
+              if(q_out[i] < q_max)
+              {
+                  q_max_idx = i + 1;
+                  break;
+              }
+          }
+          else if(idir == 1)
+          {
+              if(q_side[i] < q_max)
+              {
+                  q_max_idx = i + 1;
+                  break;
+              }
+          }
+          else if (idir == 2)
+          {
+              if(q_long[i] < q_max)
+              {
+                  q_max_idx = i + 1;
+                  break;
+              }
+          }
+      }
+      int data_length = q_max_idx;
+
+      //set up test data
+      struct Correlationfunction1D_data Correlfun1D_data;
+      Correlfun1D_data.data_length = data_length;
+      Correlfun1D_data.q = new double [data_length];
+      Correlfun1D_data.y = new double [data_length];
+      Correlfun1D_data.sigma = new double [data_length];
       for(int i=0; i<data_length; i++)
       {
          // This sets up the data to be fitted, with gaussian noise added
@@ -490,17 +576,17 @@ void fit_correlation::fit_Correlationfunction1D_gsl()
           R_long_Correl = get_fit_results(1, solver_ptr)*hbarC;
           R_long_Correl_err = c*get_fit_err(1, covariance_ptr)*hbarC;
       }
-      gsl_multifit_fdfsolver_free (solver_ptr);  // free up the solver
 
+      //clean up
+      gsl_multifit_fdfsolver_free (solver_ptr);  // free up the solver
+      delete[] Correlfun1D_data.q;
+      delete[] Correlfun1D_data.y;
+      delete[] Correlfun1D_data.sigma;
   }
   cout << "final results: " << endl;
   cout << " R_out = " << R_out_Correl << " +/- " << R_out_Correl_err << endl;
   cout << " R_side = " << R_side_Correl << " +/- " << R_side_Correl_err << endl;
   cout << " R_long = " << R_long_Correl << " +/- " << R_long_Correl_err << endl;
-
-  delete[] Correlfun1D_data.q;
-  delete[] Correlfun1D_data.y;
-  delete[] Correlfun1D_data.sigma;
 
   //clean up
   gsl_matrix_free (covariance_ptr);
@@ -511,7 +597,35 @@ void fit_correlation::fit_Correlationfunction1D_gsl()
 
 void fit_correlation::fit_Correlationfunction3D_gsl()
 {
-  const size_t data_length = qnpts*qnpts*qnpts;  // # of points
+  int q_out_idx = qnpts;
+  int q_side_idx = qnpts;
+  int q_long_idx = qnpts;
+  for(int i = 0; i < qnpts; i++)
+  {
+      if(q_out[i] > q_max)
+      {
+          q_out_idx = i+1;
+          break;
+      }
+  }
+  for(int i = 0; i < qnpts; i++)
+  {
+      if(q_side[i] > q_max)
+      {
+          q_side_idx = i+1;
+          break;
+      }
+  }
+  for(int i = 0; i < qnpts; i++)
+  {
+      if(q_long[i] > q_max)
+      {
+          q_long_idx = i+1;
+          break;
+      }
+  }
+
+  int data_length = q_out_idx*q_side_idx*q_long_idx;  // # of points
   const size_t n_para = 4;  // # of parameters
 
   // allocate space for a covariance matrix of size p by p
@@ -532,11 +646,11 @@ void fit_correlation::fit_Correlationfunction3D_gsl()
   Correlfun3D_data.sigma = new double [data_length];
 
   int idx = 0;
-  for(int i=0; i<qnpts; i++)
+  for(int i=0; i<q_out_idx; i++)
   {
-    for(int j=0; j<qnpts; j++)
+    for(int j=0; j<q_side_idx; j++)
     {
-      for(int k=0; k<qnpts; k++)
+      for(int k=0; k<q_long_idx; k++)
       {
          Correlfun3D_data.q_o[idx] = q_out[i];
          Correlfun3D_data.q_s[idx] = q_side[j];

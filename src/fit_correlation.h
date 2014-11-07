@@ -66,7 +66,7 @@ class fit_correlation
        double*** Correl_3D;
        double*** Correl_3D_err;
       
-       //HBT radii calculated from fitting correlaction functions
+       //HBT radii calculated from fitting correlation functions
        double lambda_Correl;
        double R_out_Correl;
        double R_side_Correl;
