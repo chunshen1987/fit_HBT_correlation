@@ -369,108 +369,142 @@ void fit_correlation::fit_Correlationfunction1D_gsl()
   Correlfun1D_data.y = new double [data_length];
   Correlfun1D_data.sigma = new double [data_length];
 
-  for(int i=0; i<data_length; i++)
+  for(int idir = 0; idir < 3; idir++)
   {
-     Correlfun1D_data.q[i] = q_out[i];
-     // This sets up the data to be fitted, with gaussian noise added
-     Correlfun1D_data.y[i] = 1.0*exp(-10*q_out[i]*q_out[i]);
-     Correlfun1D_data.sigma[i] = 1e-4;
-     //Correlfun1D_data.y[i] = Correl_1D_out[i];
-     //Correlfun1D_data.sigma[i] = Correl_1D_out_err[i];
-     //cout << Correlfun1D_data.q[i] << "  " << Correlfun1D_data.y[i] << "  " << Correlfun1D_data.sigma[i] << endl;
-  }
-
-  double para_init[n_para] = {1.0, 1.0};  // initial guesse of parameters
-
-  gsl_vector_view xvec_ptr = gsl_vector_view_array (para_init, n_para);
-  
-  // set up the function to be fit 
-  gsl_multifit_function_fdf target_func;
-  target_func.f = &Fittarget_correlfun1D_f;        // the function of residuals
-  target_func.df = &Fittarget_correlfun1D_df;      // the gradient of this function
-  target_func.fdf = &Fittarget_correlfun1D_fdf;    // combined function and gradient
-  target_func.n = data_length;              // number of points in the data set
-  target_func.p = n_para;              // number of parameters in the fit function
-  target_func.params = &Correlfun1D_data;  // structure with the data and error bars
-
-  const gsl_multifit_fdfsolver_type *type_ptr = gsl_multifit_fdfsolver_lmsder;
-  gsl_multifit_fdfsolver *solver_ptr 
-       = gsl_multifit_fdfsolver_alloc (type_ptr, data_length, n_para);
-  gsl_multifit_fdfsolver_set (solver_ptr, &target_func, &xvec_ptr.vector);
-
-  size_t iteration = 0;         // initialize iteration counter
-  print_fit_state_1D_gsl (iteration, solver_ptr);
-  int status;  		// return value from gsl function calls (e.g., error)
-  do
-  {
-      iteration++;
-      
-      // perform a single iteration of the fitting routine
-      status = gsl_multifit_fdfsolver_iterate (solver_ptr);
-
-      // print out the status of the fit
-      cout << "status = " << gsl_strerror (status) << endl;
-
-      // customized routine to print out current parameters
-      print_fit_state_1D_gsl (iteration, solver_ptr);
-
-      if (status)    // check for a nonzero status code
+      for(int i=0; i<data_length; i++)
       {
-          break;  // this should only happen if an error code is returned 
+         // This sets up the data to be fitted, with gaussian noise added
+         //Correlfun1D_data.y[i] = 1.0*exp(-10*q_out[i]*q_out[i]);
+         //Correlfun1D_data.sigma[i] = 1e-4;
+         if(idir == 0)
+         {
+             Correlfun1D_data.q[i] = q_out[i];
+             Correlfun1D_data.y[i] = Correl_1D_out[i];
+             Correlfun1D_data.sigma[i] = Correl_1D_out_err[i];
+         }
+         else if (idir == 1)
+         {
+             Correlfun1D_data.q[i] = q_side[i];
+             Correlfun1D_data.y[i] = Correl_1D_side[i];
+             Correlfun1D_data.sigma[i] = Correl_1D_side_err[i];
+         }
+         else
+         {
+             Correlfun1D_data.q[i] = q_long[i];
+             Correlfun1D_data.y[i] = Correl_1D_long[i];
+             Correlfun1D_data.sigma[i] = Correl_1D_long_err[i];
+         }
+         //cout << Correlfun1D_data.q[i] << "  " << Correlfun1D_data.y[i] << "  " << Correlfun1D_data.sigma[i] << endl;
       }
 
-      // test for convergence with an absolute and relative error (see manual)
-      status = gsl_multifit_test_delta (solver_ptr->dx, solver_ptr->x, 
-                                        fit_tolarence, fit_tolarence);
+      double para_init[n_para] = {1.0, 1.0};  // initial guesse of parameters
+
+      gsl_vector_view xvec_ptr = gsl_vector_view_array (para_init, n_para);
+      
+      // set up the function to be fit 
+      gsl_multifit_function_fdf target_func;
+      target_func.f = &Fittarget_correlfun1D_f;        // the function of residuals
+      target_func.df = &Fittarget_correlfun1D_df;      // the gradient of this function
+      target_func.fdf = &Fittarget_correlfun1D_fdf;    // combined function and gradient
+      target_func.n = data_length;              // number of points in the data set
+      target_func.p = n_para;              // number of parameters in the fit function
+      target_func.params = &Correlfun1D_data;  // structure with the data and error bars
+
+      const gsl_multifit_fdfsolver_type *type_ptr = gsl_multifit_fdfsolver_lmsder;
+      gsl_multifit_fdfsolver *solver_ptr 
+           = gsl_multifit_fdfsolver_alloc (type_ptr, data_length, n_para);
+      gsl_multifit_fdfsolver_set (solver_ptr, &target_func, &xvec_ptr.vector);
+
+      size_t iteration = 0;         // initialize iteration counter
+      print_fit_state_1D_gsl (iteration, solver_ptr);
+      int status;  		// return value from gsl function calls (e.g., error)
+      do
+      {
+          iteration++;
+          
+          // perform a single iteration of the fitting routine
+          status = gsl_multifit_fdfsolver_iterate (solver_ptr);
+
+          // print out the status of the fit
+          cout << "status = " << gsl_strerror (status) << endl;
+
+          // customized routine to print out current parameters
+          print_fit_state_1D_gsl (iteration, solver_ptr);
+
+          if (status)    // check for a nonzero status code
+          {
+              break;  // this should only happen if an error code is returned 
+          }
+
+          // test for convergence with an absolute and relative error (see manual)
+          status = gsl_multifit_test_delta (solver_ptr->dx, solver_ptr->x, 
+                                            fit_tolarence, fit_tolarence);
+      }
+      while (status == GSL_CONTINUE && iteration < fit_max_iterations);
+
+      // calculate the covariance matrix of the best-fit parameters
+      gsl_multifit_covar (solver_ptr->J, 0.0, covariance_ptr);
+
+      // print out the covariance matrix using the gsl function (not elegant!)
+      cout << endl << "Covariance matrix: " << endl;
+      gsl_matrix_fprintf (stdout, covariance_ptr, "%g");
+
+      cout.setf (ios::fixed, ios::floatfield);	// output in fixed format
+      cout.precision (5);		                // # of digits in doubles
+
+      int width = 7;		// setw width for output
+      cout << endl << "Best fit results:" << endl;
+      cout << "lambda = " << setw (width) << get_fit_results (0, solver_ptr)
+        << " +/- " << setw (width) << get_fit_err (0, covariance_ptr) << endl;
+
+      cout << "R = " << setw (width) << get_fit_results (1, solver_ptr)
+        << " +/- " << setw (width) << get_fit_err (1, covariance_ptr) << endl;
+
+      cout << "status = " << gsl_strerror (status) << endl;
+      cout << "------------------------------------------------------------------" << endl;
+
+      double chi = gsl_blas_dnrm2(solver_ptr->f);
+      double dof = data_length - n_para;
+      double c = GSL_MAX_DBL(1, chi/sqrt(dof));
+
+      lambda_Correl = get_fit_results(0, solver_ptr);
+      lambda_Correl_err = c*get_fit_err(0, covariance_ptr);
+
+      cout << scientific << setw(10) << setprecision(5) 
+           << " lambda = " << lambda_Correl << " +/- " << lambda_Correl_err << endl;
+      cout << scientific << setw(10) << setprecision(5) 
+            << "chisq/dof = " << chi*chi/dof << endl;
+
+      if(idir == 0)
+      {
+          R_out_Correl = get_fit_results(1, solver_ptr)*hbarC;
+          R_out_Correl_err = c*get_fit_err(1, covariance_ptr)*hbarC;
+      }
+      else if(idir == 1)
+      {
+          R_side_Correl = get_fit_results(1, solver_ptr)*hbarC;
+          R_side_Correl_err = c*get_fit_err(1, covariance_ptr)*hbarC;
+      }
+      else
+      {
+          R_long_Correl = get_fit_results(1, solver_ptr)*hbarC;
+          R_long_Correl_err = c*get_fit_err(1, covariance_ptr)*hbarC;
+      }
+      gsl_multifit_fdfsolver_free (solver_ptr);  // free up the solver
+
   }
-  while (status == GSL_CONTINUE && iteration < fit_max_iterations);
-
-  // calculate the covariance matrix of the best-fit parameters
-  gsl_multifit_covar (solver_ptr->J, 0.0, covariance_ptr);
-
-  // print out the covariance matrix using the gsl function (not elegant!)
-  cout << endl << "Covariance matrix: " << endl;
-  gsl_matrix_fprintf (stdout, covariance_ptr, "%g");
-
-  cout.setf (ios::fixed, ios::floatfield);	// output in fixed format
-  cout.precision (5);		                // # of digits in doubles
-
-  int width = 7;		// setw width for output
-  cout << endl << "Best fit results:" << endl;
-  cout << "lambda = " << setw (width) << get_fit_results (0, solver_ptr)
-    << " +/- " << setw (width) << get_fit_err (0, covariance_ptr) << endl;
-
-  cout << "R = " << setw (width) << get_fit_results (1, solver_ptr)
-    << " +/- " << setw (width) << get_fit_err (1, covariance_ptr) << endl;
-
-  cout << "status = " << gsl_strerror (status) << endl;
-  cout << "------------------------------------------------------------------" << endl;
-
-  double chi = gsl_blas_dnrm2(solver_ptr->f);
-  double dof = data_length - n_para;
-  double c = GSL_MAX_DBL(1, chi/sqrt(dof));
-
-  lambda_Correl = get_fit_results(0, solver_ptr);
-  R_out_Correl = get_fit_results(1, solver_ptr)*hbarC;
-  lambda_Correl_err = c*get_fit_err(0, covariance_ptr);
-  R_out_Correl_err = c*get_fit_err(1, covariance_ptr)*hbarC;
-
   cout << "final results: " << endl;
-  cout << scientific << setw(10) << setprecision(5) 
-       << "chisq/dof = " << chi*chi/dof << endl;
-  cout << scientific << setw(10) << setprecision(5) 
-       << " lambda = " << lambda_Correl << " +/- " << lambda_Correl_err << endl;
   cout << " R_out = " << R_out_Correl << " +/- " << R_out_Correl_err << endl;
-
-  //clean up
-  gsl_matrix_free (covariance_ptr);
-  gsl_rng_free (rng_ptr);
+  cout << " R_side = " << R_side_Correl << " +/- " << R_side_Correl_err << endl;
+  cout << " R_long = " << R_long_Correl << " +/- " << R_long_Correl_err << endl;
 
   delete[] Correlfun1D_data.q;
   delete[] Correlfun1D_data.y;
   delete[] Correlfun1D_data.sigma;
 
-  gsl_multifit_fdfsolver_free (solver_ptr);  // free up the solver
+  //clean up
+  gsl_matrix_free (covariance_ptr);
+  gsl_rng_free (rng_ptr);
 
   return;
 }

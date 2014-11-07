@@ -2,7 +2,7 @@ qnpts = 20                        # number of points for momentum q (difference 
 
 flag_1D = 1                       # 1: fit 1D correlation function
                                   # 0: fit 3D correlation function
-flag_gsl_fit = 1                  # 1: perform multidimensional fit to the correlation function
+flag_gsl_fit = 0                  # 1: perform multidimensional fit to the correlation function
                                   # 0: only find the minimum of the chi-sq for correlation function
 
 q_max = 0.1                       # the maximum momentum for q in the fit (GeV)
