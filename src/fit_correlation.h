@@ -52,19 +52,12 @@ class fit_correlation
 
        int qnpts;
        double q_max;
-       double* q_out, *q_side, *q_long;
+       double *q_out, *q_side, *q_long;
 
        double fit_tolarence;
        int fit_max_iterations;
 
-       double* Correl_1D_out;
-       double* Correl_1D_out_err;
-       double* Correl_1D_side;
-       double* Correl_1D_side_err;
-       double* Correl_1D_long;
-       double* Correl_1D_long_err;
-       double*** Correl_3D;
-       double*** Correl_3D_err;
+       double *Correlfun, *Correlfun_err;
       
        //HBT radii calculated from fitting correlation functions
        double lambda_Correl;
@@ -89,12 +82,8 @@ class fit_correlation
        void find_minimum_chisq_correlationfunction_3D();
 
        // multi-dimensional fit with gsl
-       void fit_Correlationfunction1D_gsl();
-       void fit_Correlationfunction3D_gsl();
        void fit_Correlationfunction3D_withlambda_gsl();
 
-       int print_fit_state_1D_gsl (size_t iteration, gsl_multifit_fdfsolver * solver_ptr);
-       int print_fit_state_3D_gsl (size_t iteration, gsl_multifit_fdfsolver * solver_ptr);
        int print_fit_state_3D_withlambda_gsl (size_t iteration, gsl_multifit_fdfsolver * solver_ptr);
        inline double get_fit_results(int i, gsl_multifit_fdfsolver * solver_ptr);
        inline double get_fit_err (int i, gsl_matrix * covariance_ptr);

@@ -8,6 +8,7 @@ Change logs: see arsenal.h
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <fstream>
 #include <stdlib.h>
 #include <cmath>
 #include <iomanip>
@@ -23,6 +24,14 @@ Change logs: see arsenal.h
 #define OUTPUT_PRECISION 10
 
 using namespace std;
+
+int get_number_of_lines(string filename)
+{
+    ifstream inFile(filename); 
+    int num_lines = count(istreambuf_iterator<char>(inFile), istreambuf_iterator<char>(), '\n');
+    inFile.close();
+    return(num_lines);
+}
 
 //**********************************************************************
 double sixPoint2dInterp(double x, double y,
