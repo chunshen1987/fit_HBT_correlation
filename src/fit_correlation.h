@@ -80,6 +80,7 @@ class fit_correlation
 
        void find_minimum_chisq_correlationfunction_1D();
        void find_minimum_chisq_correlationfunction_3D();
+       void find_minimum_chisq_correlationfunction_azimuthal_dependent();
 
        // multi-dimensional fit with gsl
        void fit_Correlationfunction3D_withlambda_gsl();
