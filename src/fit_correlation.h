@@ -78,7 +78,8 @@ class fit_correlation
        void fit();
        void read_in_correlation_functions();
 
-       void find_minimum_chisq_correlationfunction_1D();
+       void find_minimum_chisq_correlationfunction_osl();
+       void find_minimum_chisq_correlationfunction_os_and_l();
        void find_minimum_chisq_correlationfunction_3D();
        void find_minimum_chisq_correlationfunction_azimuthal_dependent();
 
