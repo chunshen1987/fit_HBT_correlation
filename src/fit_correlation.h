@@ -13,6 +13,7 @@
 
 using namespace std;
 
+// for gsl fitting
 struct Correlationfunction3D_data
 {
   size_t data_length;
@@ -23,23 +24,12 @@ struct Correlationfunction3D_data
   double *sigma;
 };
 
-struct Correlationfunction1D_data
-{
-  size_t data_length;
-  double *q;
-  double *y;
-  double *sigma;
-};
-
-int Fittarget_correlfun1D_f (const gsl_vector *xvec_ptr, void *params_ptr, gsl_vector *f_ptr);
-int Fittarget_correlfun1D_df (const gsl_vector *xvec_ptr, void *params_ptr,  gsl_matrix *Jacobian_ptr);
-int Fittarget_correlfun1D_fdf (const gsl_vector* xvec_ptr, void *params_ptr, gsl_vector* f_ptr, gsl_matrix* Jacobian_ptr);
-int Fittarget_correlfun3D_f (const gsl_vector *xvec_ptr, void *params_ptr, gsl_vector *f_ptr);
-int Fittarget_correlfun3D_df (const gsl_vector *xvec_ptr, void *params_ptr,  gsl_matrix *Jacobian_ptr);
-int Fittarget_correlfun3D_fdf (const gsl_vector* xvec_ptr, void *params_ptr, gsl_vector* f_ptr, gsl_matrix* Jacobian_ptr);
 int Fittarget_correlfun3D_f_withlambda (const gsl_vector *xvec_ptr, void *params_ptr, gsl_vector *f_ptr);
 int Fittarget_correlfun3D_df_withlambda (const gsl_vector *xvec_ptr, void *params_ptr,  gsl_matrix *Jacobian_ptr);
 int Fittarget_correlfun3D_fdf_withlambda (const gsl_vector* xvec_ptr, void *params_ptr, gsl_vector* f_ptr, gsl_matrix* Jacobian_ptr);
+
+/*****************************************************************************/
+/*****************************************************************************/
 
 class fit_correlation
 {
@@ -47,11 +37,10 @@ class fit_correlation
        string filename;
        ParameterReader* paraRdr;
       
-       int flag_1D;
-       int flag_gsl_fit;
+       int fit_mode;
 
        int qnpts;
-       double q_max;
+       double q_max_1, q_max_2;
        double *q_out, *q_side, *q_long;
 
        double fit_tolarence;
@@ -61,15 +50,12 @@ class fit_correlation
       
        //HBT radii calculated from fitting correlation functions
        double lambda_Correl;
-       double R_out_Correl;
-       double R_side_Correl;
-       double R_long_Correl;
-       double R_os_Correl;
+       double R_out_Correl, R_side_Correl, R_long_Correl;
+       double R_os_Correl, R_sl_Correl, R_ol_Correl;
+
        double lambda_Correl_err;
-       double R_out_Correl_err;
-       double R_side_Correl_err;
-       double R_long_Correl_err;
-       double R_os_Correl_err;
+       double R_out_Correl_err, R_side_Correl_err, R_long_Correl_err;
+       double R_os_Correl_err, R_sl_Correl_err, R_ol_Correl_err;
 
     public:
        fit_correlation(string filename_in, ParameterReader* paraRdr);
@@ -77,15 +63,16 @@ class fit_correlation
 
        void fit();
        void read_in_correlation_functions();
+       void output_fit_results(ofstream of, double q_fit);
 
-       void find_minimum_chisq_correlationfunction_o_s_l();
-       void find_minimum_chisq_correlationfunction_o_s_and_l();
-       void find_minimum_chisq_correlationfunction_o_s_os_and_l();
-       void find_minimum_chisq_correlationfunction_full();
-       void find_minimum_chisq_correlationfunction_o_s_l_os();
+       void find_minimum_chisq_correlationfunction_o_s_l(double q_fit);
+       void find_minimum_chisq_correlationfunction_o_s_and_l(double q_fit);
+       void find_minimum_chisq_correlationfunction_o_s_os_and_l(double q_fit);
+       void find_minimum_chisq_correlationfunction_full(double q_fit);
+       void find_minimum_chisq_correlationfunction_o_s_l_os(double q_fit);
 
        // multi-dimensional fit with gsl
-       void fit_Correlationfunction3D_withlambda_gsl();
+       void fit_Correlationfunction3D_withlambda_gsl(double q_fit);
 
        int print_fit_state_3D_withlambda_gsl (size_t iteration, gsl_multifit_fdfsolver * solver_ptr);
        inline double get_fit_results(int i, gsl_multifit_fdfsolver * solver_ptr);

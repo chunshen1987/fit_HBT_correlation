@@ -1,9 +1,14 @@
-flag_1D = 1                       # 1: fit correlation function without cross term HBT radii
-                                  # 0: fit correlation function with full set of HBT radii
-flag_gsl_fit = 0                  # 1: perform multidimensional fit to the correlation function
-                                  # 0: only find the minimum of the chi-sq for correlation function
+q_max_1 = 0.05                    # the minimum of the maximum momentum for q in the fit (GeV)
+q_max_2 = 0.15                    # the maximum of the maximum momentum for q in the fit (GeV)
 
-q_max = 0.2                       # the maximum momentum for q in the fit (GeV)
+fit_mode = 1                      # 0: fit correlation function first with R_o, R_s and then fit R_l
+                                  # 1: fit correlation function first with R_o, R_s, R_os, and then fit R_l
+                                  # 2: fit correlation function with R_o, R_s, and R_l
+                                  # 3: fit correlation function with R_o, R_s, R_os, and R_l
+                                  # 9: fit correlation function with R_o, R_s, R_l, R_os, R_sl, and R_ol
+                                  # 99: fit correlation function with gsl routine
 
 fit_max_iterations = 1000         # maximum iteration for gaussian fit to get correlation function
 fit_tolarence = 1e-6              # tolarence for gaussian fit
+
+

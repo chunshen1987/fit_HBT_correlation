@@ -25,11 +25,12 @@ fit_correlation::fit_correlation(string filename_in, ParameterReader* paraRdr_in
 
     qnpts = get_number_of_lines(filename);
 
-    q_max = paraRdr->getVal("q_max");
+    q_max_1 = paraRdr->getVal("q_max_1");
+    q_max_2 = paraRdr->getVal("q_max_2");
 
-    flag_1D = paraRdr->getVal("flag_1D");
-    flag_gsl_fit = paraRdr->getVal("flag_gsl_fit");
-    if(flag_gsl_fit == 1)
+    fit_mode = paraRdr->getVal("fit_mode");
+
+    if(fit_mode == 99)
     {
         fit_tolarence = paraRdr->getVal("fit_tolarence");
         fit_max_iterations = paraRdr->getVal("fit_max_iterations");
@@ -41,6 +42,22 @@ fit_correlation::fit_correlation(string filename_in, ParameterReader* paraRdr_in
 
     Correlfun = new double [qnpts];
     Correlfun_err = new double [qnpts];
+
+    // initialization with 0
+    lambda_Correl = 0.0;
+    lambda_Correl_err = 0.0;
+    R_out_Correl = 0.0;
+    R_out_Correl_err = 0.0;
+    R_side_Correl = 0.0;
+    R_side_Correl_err = 0.0;
+    R_long_Correl = 0.0;
+    R_long_Correl_err = 0.0;
+    R_os_Correl = 0.0;
+    R_os_Correl_err = 0.0;
+    R_sl_Correl = 0.0;
+    R_sl_Correl_err = 0.0;
+    R_ol_Correl = 0.0;
+    R_ol_Correl_err = 0.0;
 }
 
 fit_correlation::~fit_correlation()
@@ -56,21 +73,26 @@ fit_correlation::~fit_correlation()
 void fit_correlation::fit()
 {
     read_in_correlation_functions();
-    if(flag_gsl_fit == 0)
+   
+    ofstream outputfile("HBT_radii.dat");
+    for(double q_fit = q_max_1; q_fit <= q_max_2; q_fit += 0.01)
     {
-        if(flag_1D == 1)
-        {
-            //find_minimum_chisq_correlationfunction_1D();
-            find_minimum_chisq_correlationfunction_o_s_and_l();
-            find_minimum_chisq_correlationfunction_o_s_os_and_l();
-        }
-        else
-            find_minimum_chisq_correlationfunction_full();
+        if(fit_mode == 0)
+            find_minimum_chisq_correlationfunction_o_s_and_l(q_fit);
+        else if(fit_mode == 1)
+            find_minimum_chisq_correlationfunction_o_s_os_and_l(q_fit);
+        else if(fit_mode == 2)
+            find_minimum_chisq_correlationfunction_o_s_l(q_fit);
+        else if(fit_mode == 3)
+            find_minimum_chisq_correlationfunction_o_s_l_os(q_fit);
+        else if(fit_mode == 9)
+            find_minimum_chisq_correlationfunction_full(q_fit);
+        else if(fit_mode == 99)
+            fit_Correlationfunction3D_withlambda_gsl(q_fit);
+        
+        output_fit_results(outputfile, q_fit);
     }
-    else
-    {
-        fit_Correlationfunction3D_withlambda_gsl();
-    }
+    outputfile.close();
 }
 
 void fit_correlation::read_in_correlation_functions()
@@ -88,8 +110,21 @@ void fit_correlation::read_in_correlation_functions()
     data.close();
 }
 
+void fit_correlation::output_fit_results(ofstream of, double q_fit)
+{
+   of << "#q_fit_max(GeV)  lambda  lambda_err  R_out(fm)  R_out_err(fm)  R_side(fm)  R_side_err(fm)  R_long(fm)  R_long_err(fm)  R_os^2(fm^2)  R_os^2_err(fm^2)  R_sl^2(fm^2)  R_sl^2_err(fm^2)  R_ol^2(fm^2)  R_ol^2_err(fm^2)" << endl;
+   of << scientific << setw(15) << setprecision(7)
+      << q_fit << "  " 
+      << lambda_Correl << "  " << lambda_Correl_err << "  "
+      << R_out_Correl << "  " << R_out_Correl_err << "  " 
+      << R_side_Correl << "  " << R_side_Correl_err << "  "
+      << R_long_Correl << "  " << R_long_Correl_err << "  "
+      << R_os_Correl << "  " << R_os_Correl_err << "  "
+      << R_sl_Correl << "  " << R_sl_Correl_err << "  "
+      << R_ol_Correl << "  " << R_ol_Correl_err << endl;
+}
 
-void fit_correlation::find_minimum_chisq_correlationfunction_o_s_and_l()
+void fit_correlation::find_minimum_chisq_correlationfunction_o_s_and_l(double q_fit)
 {
     double lambda, R_out, R_side;
     int dim = 3;
@@ -118,7 +153,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_and_l()
             double q_out_local = q_out[iq];
             double q_side_local = q_side[iq];
             double q_mag_sq = q_out_local*q_out_local + q_side_local*q_side_local;
-            if(q_mag_sq < q_max*q_max)
+            if(q_mag_sq < q_fit*q_fit)
             {
                 double correl_local = Correlfun[iq];
                 double sigma_k_prime = Correlfun_err[iq]/correl_local;
@@ -188,7 +223,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_and_l()
             double q_out_local = q_out[iq];
             double q_side_local = q_side[iq];
             double q_mag_sq = q_out_local*q_out_local + q_side_local*q_side_local + q_long_local*q_long_local;
-            if(q_mag_sq < q_max*q_max)
+            if(q_mag_sq < q_fit*q_fit)
             {
                 double prefactor = lambda*exp( -q_out_local*q_out_local*results[1] - q_side_local*q_side_local*results[2]);
                 double correl_local = Correlfun[iq]/prefactor;
@@ -223,6 +258,11 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_and_l()
     }
     cout << "chi_sq/d.o.f = " << chi_sq/(qnpts - dim) << endl;
 
+    lambda_Correl = lambda;
+    R_out_Correl = R_out;
+    R_side_Correl = R_side;
+    R_long_Correl = R_long;
+
     // clean up
     gsl_matrix_free (T_gsl);
     gsl_matrix_free (T_inverse_gsl);
@@ -240,7 +280,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_and_l()
     delete [] results;
 }
 
-void fit_correlation::find_minimum_chisq_correlationfunction_o_s_os_and_l()
+void fit_correlation::find_minimum_chisq_correlationfunction_o_s_os_and_l(double q_fit)
 {
     double lambda, R_out, R_side, R_os;
     int dim = 4;
@@ -269,7 +309,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_os_and_l()
             double q_out_local = q_out[iq];
             double q_side_local = q_side[iq];
             double q_mag_sq = q_out_local*q_out_local + q_side_local*q_side_local;
-            if(q_mag_sq < q_max*q_max)
+            if(q_mag_sq < q_fit*q_fit)
             {
                 double correl_local = Correlfun[iq];
                 double sigma_k_prime = Correlfun_err[iq]/correl_local;
@@ -341,7 +381,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_os_and_l()
             double q_out_local = q_out[iq];
             double q_side_local = q_side[iq];
             double q_mag_sq = q_out_local*q_out_local + q_side_local*q_side_local + q_long_local*q_long_local;
-            if(q_mag_sq < q_max*q_max)
+            if(q_mag_sq < q_fit*q_fit)
             {
                 double prefactor = lambda*exp( -q_out_local*q_out_local*results[1] - q_side_local*q_side_local*results[2] - q_out_local*q_side_local*results[3]);
                 double correl_local = Correlfun[iq]/prefactor;
@@ -376,6 +416,12 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_os_and_l()
     }
     cout << "chi_sq/d.o.f = " << chi_sq/(qnpts - dim) << endl;
 
+    lambda_Correl = lambda;
+    R_out_Correl = R_out;
+    R_side_Correl = R_side;
+    R_long_Correl = R_long;
+    R_os_Correl = R_os;
+
     // clean up
     gsl_matrix_free (T_gsl);
     gsl_matrix_free (T_inverse_gsl);
@@ -393,7 +439,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_os_and_l()
     delete [] results;
 }
 
-void fit_correlation::find_minimum_chisq_correlationfunction_o_s_l()
+void fit_correlation::find_minimum_chisq_correlationfunction_o_s_l(double q_fit)
 {
     double lambda, R_out, R_side, R_long;
     int dim = 4;
@@ -420,7 +466,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_l()
         double q_side_local = q_side[iq];
         double q_long_local = q_long[iq];
         double q_mag_sq = q_out_local*q_out_local + q_side_local*q_side_local + q_long_local*q_long_local;
-        if(q_mag_sq < q_max*q_max)
+        if(q_mag_sq < q_fit*q_fit)
         {
             double correl_local = Correlfun[iq];
             double sigma_k_prime = Correlfun_err[iq]/correl_local;
@@ -494,7 +540,13 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_l()
                   /sigma_k_prime/sigma_k_prime;
     }
     cout << "chi_sq/d.o.f = " << chi_sq/(qnpts - dim) << endl;
+    
+    lambda_Correl = lambda;
+    R_out_Correl = R_out;
+    R_side_Correl = R_side;
+    R_long_Correl = R_long;
 
+    // clean up
     gsl_matrix_free (T_gsl);
     gsl_matrix_free (T_inverse_gsl);
     gsl_permutation_free (perm);
@@ -511,7 +563,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_l()
     delete [] results;
 }
 
-void fit_correlation::find_minimum_chisq_correlationfunction_o_s_l_os()
+void fit_correlation::find_minimum_chisq_correlationfunction_o_s_l_os(double q_fit)
 {
     double lambda, R_out, R_side, R_long, R_os;
     int dim = 5;
@@ -538,7 +590,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_l_os()
         double q_side_local = q_side[iq];
         double q_long_local = q_long[iq];
         double q_mag_sq = q_out_local*q_out_local + q_side_local*q_side_local + q_long_local*q_long_local;
-        if(q_mag_sq < q_max*q_max)
+        if(q_mag_sq < q_fit*q_fit)
         {
             double correl_local = Correlfun[iq];
             double sigma_k_prime = Correlfun_err[iq]/correl_local;
@@ -594,9 +646,9 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_l_os()
     R_out = sqrt(results[1])*hbarC;
     R_side = sqrt(results[2])*hbarC;
     R_long = sqrt(results[3])*hbarC;
-    R_os = sqrt(results[4])*hbarC;
+    R_os = results[4]*hbarC*hbarC;
     cout << "lambda = " << lambda << endl;
-    cout << "R_o = " << R_out << " fm, R_s = " << R_side << " fm, R_l = " << R_long << " fm, R_os = " << R_os << " fm"<< endl;
+    cout << "R_o = " << R_out << " fm, R_s = " << R_side << " fm, R_l = " << R_long << " fm, R_os^2 = " << R_os << " fm^2"<< endl;
 
     double chi_sq = 0.0;
     for(int iq = 0; iq < qnpts; iq++)
@@ -615,7 +667,14 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_l_os()
                   /sigma_k_prime/sigma_k_prime;
     }
     cout << "chi_sq/d.o.f = " << chi_sq/(qnpts - dim) << endl;
-
+    
+    lambda_Correl = lambda;
+    R_out_Correl = R_out;
+    R_side_Correl = R_side;
+    R_long_Correl = R_long;
+    R_os_Correl = R_os;
+    
+    // clean up
     gsl_matrix_free (T_gsl);
     gsl_matrix_free (T_inverse_gsl);
     gsl_permutation_free (perm);
@@ -632,7 +691,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_l_os()
     delete [] results;
 }
 
-void fit_correlation::find_minimum_chisq_correlationfunction_full()
+void fit_correlation::find_minimum_chisq_correlationfunction_full(double q_fit)
 {
     double lambda, R_o, R_s, R_l, R_os, R_ol, R_sl;
     int dim = 7;
@@ -659,7 +718,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_full()
         double q_side_local = q_side[iq];
         double q_long_local = q_long[iq];
         double q_mag_sq = q_out_local*q_out_local + q_side_local*q_side_local + q_long_local*q_long_local;
-        if(q_mag_sq < q_max*q_max)
+        if(q_mag_sq < q_fit*q_fit)
         {
             double correl_local = Correlfun[iq];
             double sigma_k_prime = Correlfun_err[iq]/correl_local;
@@ -717,12 +776,13 @@ void fit_correlation::find_minimum_chisq_correlationfunction_full()
     R_o = sqrt(results[1])*hbarC;
     R_s = sqrt(results[2])*hbarC;
     R_l = sqrt(results[3])*hbarC;
-    R_os = sqrt(results[4])*hbarC;
-    R_ol = sqrt(results[5])*hbarC;
-    R_sl = sqrt(results[6])*hbarC;
+    // the cross term is not necessary positive
+    R_os = results[4]*hbarC*hbarC;
+    R_ol = results[5]*hbarC*hbarC;
+    R_sl = results[6]*hbarC*hbarC;
     cout << "lambda = " << lambda << endl;
     cout << "R_o = " << R_o << " fm, R_s = " << R_s << " fm, R_l = " << R_l << " fm" << endl;
-    cout << "R_os = " << R_os << " fm, R_ol = " << R_ol << " fm, R_sl = " << R_sl << " fm." << endl;
+    cout << "R_os^2 = " << R_os << " fm^2, R_ol^2 = " << R_ol << " fm^2, R_sl^2 = " << R_sl << " fm^2." << endl;
 
     double chi_sq = 0.0;
     for(int iq = 0; iq < qnpts; iq++)
@@ -744,6 +804,15 @@ void fit_correlation::find_minimum_chisq_correlationfunction_full()
     }
     cout << "chi_sq/d.o.f = " << chi_sq/(qnpts - dim) << endl;
 
+    lambda_Correl = lambda;
+    R_out_Correl = R_o;
+    R_side_Correl = R_s;
+    R_long_Correl = R_l;
+    R_os_Correl = R_os;
+    R_sl_Correl = R_sl;
+    R_ol_Correl = R_ol;
+
+    // clean up
     gsl_matrix_free (T_gsl);
     gsl_matrix_free (T_inverse_gsl);
     gsl_permutation_free (perm);
@@ -762,7 +831,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_full()
 
 //*********************************************************************
 // Functions used for multi-dimensional fit
-void fit_correlation::fit_Correlationfunction3D_withlambda_gsl()
+void fit_correlation::fit_Correlationfunction3D_withlambda_gsl(double q_fit)
 {
   const size_t data_length = qnpts;  // # of points
   const size_t n_para = 5;  // # of parameters
@@ -787,7 +856,7 @@ void fit_correlation::fit_Correlationfunction3D_withlambda_gsl()
   int idx = 0;
   for(int i=0; i<qnpts; i++)
   {
-     if(q_out[i]*q_out[i] + q_side[i]*q_side[i] + q_long[i]*q_long[i] < q_max*q_max)
+     if(q_out[i]*q_out[i] + q_side[i]*q_side[i] + q_long[i]*q_long[i] < q_fit*q_fit)
      {
          Correlfun3D_data.q_o[idx] = q_out[i];
          Correlfun3D_data.q_s[idx] = q_side[i];
