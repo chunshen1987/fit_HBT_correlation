@@ -58,6 +58,11 @@ fit_correlation::fit_correlation(string filename_in, ParameterReader* paraRdr_in
     R_sl_Correl_err = 0.0;
     R_ol_Correl = 0.0;
     R_ol_Correl_err = 0.0;
+    
+    ostringstream filename;
+    filename << "HBT_radii_fit_mode_" << fit_mode << ".dat";
+    outputfile.open(filename.str().c_str());
+    outputfile << "#q_fit_max(GeV)  lambda  lambda_err  R_out(fm)  R_out_err(fm)  R_side(fm)  R_side_err(fm)  R_long(fm)  R_long_err(fm)  R_os^2(fm^2)  R_os^2_err(fm^2)  R_sl^2(fm^2)  R_sl^2_err(fm^2)  R_ol^2(fm^2)  R_ol^2_err(fm^2)" << endl;
 }
 
 fit_correlation::~fit_correlation()
@@ -74,7 +79,6 @@ void fit_correlation::fit()
 {
     read_in_correlation_functions();
    
-    ofstream outputfile("HBT_radii.dat");
     for(double q_fit = q_max_1; q_fit <= q_max_2; q_fit += 0.01)
     {
         if(fit_mode == 0)
@@ -90,7 +94,7 @@ void fit_correlation::fit()
         else if(fit_mode == 99)
             fit_Correlationfunction3D_withlambda_gsl(q_fit);
         
-        output_fit_results(outputfile, q_fit);
+        output_fit_results(q_fit);
     }
     outputfile.close();
 }
@@ -110,18 +114,17 @@ void fit_correlation::read_in_correlation_functions()
     data.close();
 }
 
-void fit_correlation::output_fit_results(ofstream of, double q_fit)
+void fit_correlation::output_fit_results(double q_fit)
 {
-   of << "#q_fit_max(GeV)  lambda  lambda_err  R_out(fm)  R_out_err(fm)  R_side(fm)  R_side_err(fm)  R_long(fm)  R_long_err(fm)  R_os^2(fm^2)  R_os^2_err(fm^2)  R_sl^2(fm^2)  R_sl^2_err(fm^2)  R_ol^2(fm^2)  R_ol^2_err(fm^2)" << endl;
-   of << scientific << setw(15) << setprecision(7)
-      << q_fit << "  " 
-      << lambda_Correl << "  " << lambda_Correl_err << "  "
-      << R_out_Correl << "  " << R_out_Correl_err << "  " 
-      << R_side_Correl << "  " << R_side_Correl_err << "  "
-      << R_long_Correl << "  " << R_long_Correl_err << "  "
-      << R_os_Correl << "  " << R_os_Correl_err << "  "
-      << R_sl_Correl << "  " << R_sl_Correl_err << "  "
-      << R_ol_Correl << "  " << R_ol_Correl_err << endl;
+   outputfile << scientific << setw(15) << setprecision(7)
+              << q_fit << "  " 
+              << lambda_Correl << "  " << lambda_Correl_err << "  "
+              << R_out_Correl << "  " << R_out_Correl_err << "  " 
+              << R_side_Correl << "  " << R_side_Correl_err << "  "
+              << R_long_Correl << "  " << R_long_Correl_err << "  "
+              << R_os_Correl << "  " << R_os_Correl_err << "  "
+              << R_sl_Correl << "  " << R_sl_Correl_err << "  "
+              << R_ol_Correl << "  " << R_ol_Correl_err << endl;
 }
 
 void fit_correlation::find_minimum_chisq_correlationfunction_o_s_and_l(double q_fit)

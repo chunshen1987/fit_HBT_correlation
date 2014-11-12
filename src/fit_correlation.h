@@ -57,13 +57,15 @@ class fit_correlation
        double R_out_Correl_err, R_side_Correl_err, R_long_Correl_err;
        double R_os_Correl_err, R_sl_Correl_err, R_ol_Correl_err;
 
+       ofstream outputfile;
+
     public:
        fit_correlation(string filename_in, ParameterReader* paraRdr);
        ~fit_correlation();
 
        void fit();
        void read_in_correlation_functions();
-       void output_fit_results(ofstream of, double q_fit);
+       void output_fit_results(double q_fit);
 
        void find_minimum_chisq_correlationfunction_o_s_l(double q_fit);
        void find_minimum_chisq_correlationfunction_o_s_and_l(double q_fit);
