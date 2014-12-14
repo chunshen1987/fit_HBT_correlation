@@ -40,7 +40,8 @@ class fit_correlation
        int fit_mode;
 
        int qnpts;
-       double q_max_1, q_max_2;
+       int nq_max;
+       double q_max_1, q_max_2, dq_max;
        double *q_out, *q_side, *q_long;
 
        double fit_tolarence;
@@ -52,6 +53,7 @@ class fit_correlation
        double lambda_Correl;
        double R_out_Correl, R_side_Correl, R_long_Correl;
        double R_os_Correl, R_sl_Correl, R_ol_Correl;
+       double chi_sq_per_dof;
 
        double lambda_Correl_err;
        double R_out_Correl_err, R_side_Correl_err, R_long_Correl_err;
