@@ -2,7 +2,7 @@ q_max_1 = 0.05                    # the minimum of the maximum momentum for q in
 q_max_2 = 0.15                    # the maximum of the maximum momentum for q in the fit (GeV)
 nq_max = 21                       # number of the maximum momentum q_max for the fit
 
-fit_mode = 1                      # 0: fit correlation function first with R_o, R_s and then fit R_l
+fit_mode = 0                      # 0: fit correlation function first with R_o, R_s and then fit R_l
                                   # 1: fit correlation function first with R_o, R_s, R_os, and then fit R_l
                                   # 2: fit correlation function with R_o, R_s, and R_l
                                   # 3: fit correlation function with R_o, R_s, R_os, and R_l

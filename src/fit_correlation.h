@@ -70,6 +70,7 @@ class fit_correlation
        void output_fit_results(double q_fit);
 
        void find_minimum_chisq_correlationfunction_o_s_l(double q_fit);
+       void find_minimum_chisq_correlationfunction_o_s_and_l_lambda_fixed(double q_fit);
        void find_minimum_chisq_correlationfunction_o_s_and_l(double q_fit);
        void find_minimum_chisq_correlationfunction_o_s_os_and_l(double q_fit);
        void find_minimum_chisq_correlationfunction_full(double q_fit);
