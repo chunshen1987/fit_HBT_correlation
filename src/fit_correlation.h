@@ -41,6 +41,7 @@ class fit_correlation
 
        int qnpts;
        int nq_max;
+       double q_fit_min;
        double q_max_1, q_max_2, dq_max;
        double *q_out, *q_side, *q_long;
 

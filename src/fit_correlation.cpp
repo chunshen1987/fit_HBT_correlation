@@ -25,13 +25,13 @@ fit_correlation::fit_correlation(string filename_in, ParameterReader* paraRdr_in
 
     qnpts = get_number_of_lines(filename);
 
+    q_fit_min = paraRdr->getVal("q_fit_min");
     q_max_1 = paraRdr->getVal("q_max_1");
     q_max_2 = paraRdr->getVal("q_max_2");
     nq_max = paraRdr->getVal("nq_max");
     dq_max = (q_max_2 - q_max_1)/(nq_max - 1);
 
     fit_mode = paraRdr->getVal("fit_mode");
-
 
     if(fit_mode == 99)
     {
@@ -162,7 +162,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_and_l(double q_
             double q_out_local = q_out[iq];
             double q_side_local = q_side[iq];
             double q_mag_sq = q_out_local*q_out_local + q_side_local*q_side_local;
-            if(q_mag_sq < q_fit*q_fit)
+            if(q_mag_sq > q_fit_min*q_fit_min && q_mag_sq < q_fit*q_fit)
             {
                 double correl_local = Correlfun[iq];
                 if(correl_local < 0.0) continue;
@@ -236,7 +236,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_and_l(double q_
         {
             double q_long_local = q_long[iq];
             double q_mag_sq = q_out_local*q_out_local + q_side_local*q_side_local + q_long_local*q_long_local;
-            if(q_mag_sq < q_fit*q_fit)
+            if(q_mag_sq > q_fit_min*q_fit_min && q_mag_sq < q_fit*q_fit)
             {
                 double prefactor = lambda*exp( -q_out_local*q_out_local*results[1] - q_side_local*q_side_local*results[2]);
                 double correl_local = Correlfun[iq]/prefactor;
@@ -333,7 +333,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_and_l_lambda_fi
             double q_out_local = q_out[iq];
             double q_side_local = q_side[iq];
             double q_mag_sq = q_out_local*q_out_local + q_side_local*q_side_local;
-            if(q_mag_sq < q_fit*q_fit)
+            if(q_mag_sq > q_fit_min*q_fit_min && q_mag_sq < q_fit*q_fit)
             {
                 double correl_local = Correlfun[iq];
                 if(correl_local < 0.0) continue;  // throw out negative points
@@ -399,7 +399,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_and_l_lambda_fi
         {
             double q_long_local = q_long[iq];
             double q_mag_sq = q_out_local*q_out_local + q_side_local*q_side_local + q_long_local*q_long_local;
-            if(q_mag_sq < q_fit*q_fit)
+            if(q_mag_sq > q_fit_min*q_fit_min && q_mag_sq < q_fit*q_fit)
             {
                 double prefactor = lambda*exp( -q_out_local*q_out_local*results[1] - q_side_local*q_side_local*results[2]);
                 double correl_local = Correlfun[iq]/prefactor;
@@ -489,7 +489,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_os_and_l(double
             double q_out_local = q_out[iq];
             double q_side_local = q_side[iq];
             double q_mag_sq = q_out_local*q_out_local + q_side_local*q_side_local;
-            if(q_mag_sq < q_fit*q_fit)
+            if(q_mag_sq > q_fit_min*q_fit_min && q_mag_sq < q_fit*q_fit)
             {
                 double correl_local = Correlfun[iq];
                 if(correl_local < 0.0) continue;
@@ -564,7 +564,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_os_and_l(double
         {
             double q_long_local = q_long[iq];
             double q_mag_sq = q_out_local*q_out_local + q_side_local*q_side_local + q_long_local*q_long_local;
-            if(q_mag_sq < q_fit*q_fit)
+            if(q_mag_sq > q_fit_min*q_fit_min && q_mag_sq < q_fit*q_fit)
             {
                 double prefactor = lambda*exp( -q_out_local*q_out_local*results[1] - q_side_local*q_side_local*results[2] - q_out_local*q_side_local*results[3]);
                 double correl_local = Correlfun[iq]/prefactor;
@@ -652,7 +652,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_l(double q_fit)
         double q_side_local = q_side[iq];
         double q_long_local = q_long[iq];
         double q_mag_sq = q_out_local*q_out_local + q_side_local*q_side_local + q_long_local*q_long_local;
-        if(q_mag_sq < q_fit*q_fit)
+        if(q_mag_sq > q_fit_min*q_fit_min && q_mag_sq < q_fit*q_fit)
         {
             double correl_local = Correlfun[iq];
             if(correl_local < 0.0) continue;
@@ -781,7 +781,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_l_os(double q_f
         double q_side_local = q_side[iq];
         double q_long_local = q_long[iq];
         double q_mag_sq = q_out_local*q_out_local + q_side_local*q_side_local + q_long_local*q_long_local;
-        if(q_mag_sq < q_fit*q_fit)
+        if(q_mag_sq > q_fit_min*q_fit_min && q_mag_sq < q_fit*q_fit)
         {
             double correl_local = Correlfun[iq];
             if(correl_local < 0.0) continue;
@@ -913,7 +913,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_full(double q_fit)
         double q_side_local = q_side[iq];
         double q_long_local = q_long[iq];
         double q_mag_sq = q_out_local*q_out_local + q_side_local*q_side_local + q_long_local*q_long_local;
-        if(q_mag_sq < q_fit*q_fit)
+        if(q_mag_sq > q_fit_min*q_fit_min && q_mag_sq < q_fit*q_fit)
         {
             double correl_local = Correlfun[iq];
             if(correl_local < 0.0) continue;
