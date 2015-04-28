@@ -41,9 +41,10 @@ int main(int argc, char *argv[])
    // Read-in parameters
    ParameterReader *paraRdr = new ParameterReader;
    paraRdr->readFromFile("parameters.dat");
+   paraRdr->readFromArguments(argc, argv, "#", 2);
    paraRdr->echo();
    
-   string filename=argv[1];
+   string filename = argv[1];
 
    Stopwatch sw_total;
    sw_total.tic();
