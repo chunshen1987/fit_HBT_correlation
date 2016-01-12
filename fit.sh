@@ -3,6 +3,10 @@
 path=$1
 mode=$2
 
+if [ -z "$mode" ]; then
+    mode=2
+fi
+
 for ii in `ls $path | grep "correlation_function"`
 do 
     ./fit_HBT.e $path/$ii fit_mode=$mode
