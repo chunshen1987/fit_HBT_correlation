@@ -3,6 +3,11 @@
 path=$1
 mode=$2
 
+if [ -z "$path" ]; then
+    echo "Usage: ./fit.sh path mode"
+    exit 1
+fi
+
 if [ -z "$mode" ]; then
     mode=2
 fi

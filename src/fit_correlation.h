@@ -76,6 +76,7 @@ class fit_correlation
        void find_minimum_chisq_correlationfunction_o_s_os_and_l(double q_fit);
        void find_minimum_chisq_correlationfunction_full(double q_fit);
        void find_minimum_chisq_correlationfunction_o_s_l_os(double q_fit);
+       void find_minimum_chisq_correlationfunction_o_s_l_ol(double q_fit);
 
        // multi-dimensional fit with gsl
        void fit_Correlationfunction3D_withlambda_gsl(double q_fit);
