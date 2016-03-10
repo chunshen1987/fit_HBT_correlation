@@ -167,7 +167,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_and_l(double q_
             if(q_mag_sq > q_fit_min*q_fit_min && q_mag_sq < q_fit*q_fit)
             {
                 double correl_local = Correlfun[iq];
-                if(correl_local < 0.0) continue;
+                if(correl_local < 1e-15) continue;
                 double sigma_k_prime = Correlfun_err[iq]/correl_local;
                     
                 double inv_sigma_k_prime_sq = 1./(sigma_k_prime*sigma_k_prime);
@@ -242,7 +242,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_and_l(double q_
             {
                 double prefactor = lambda*exp( -q_out_local*q_out_local*results[1] - q_side_local*q_side_local*results[2]);
                 double correl_local = Correlfun[iq]/prefactor;
-                if(correl_local < 0.0) continue;
+                if(correl_local < 1e-15) continue;
                 double sigma_k_prime = Correlfun_err[iq]/prefactor/correl_local;
                     
                 double inv_sigma_k_prime_sq = 1./(sigma_k_prime*sigma_k_prime);
@@ -264,7 +264,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_and_l(double q_
         double q_side_local = q_side[iq];
         double q_long_local = q_long[iq];
         double correl_local = Correlfun[iq];
-        if(correl_local < 0.0) continue;
+        if(correl_local < 1e-15) continue;
         double sigma_k_prime = Correlfun_err[iq]/correl_local;
 
         chi_sq += pow((log(correl_local) - results[0] 
@@ -338,7 +338,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_and_l_lambda_fi
             if(q_mag_sq > q_fit_min*q_fit_min && q_mag_sq < q_fit*q_fit)
             {
                 double correl_local = Correlfun[iq];
-                if(correl_local < 0.0) continue;  // throw out negative points
+                if(correl_local < 1e-15) continue;  // throw out negative points
                 double sigma_k_prime = Correlfun_err[iq]/correl_local;
                     
                 double inv_sigma_k_prime_sq = 1./(sigma_k_prime*sigma_k_prime);
@@ -405,7 +405,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_and_l_lambda_fi
             {
                 double prefactor = lambda*exp( -q_out_local*q_out_local*results[1] - q_side_local*q_side_local*results[2]);
                 double correl_local = Correlfun[iq]/prefactor;
-                if(correl_local < 0.0) continue;
+                if(correl_local < 1e-15) continue;
                 double sigma_k_prime = Correlfun_err[iq]/prefactor/correl_local;
                     
                 double inv_sigma_k_prime_sq = 1./(sigma_k_prime*sigma_k_prime);
@@ -427,7 +427,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_and_l_lambda_fi
         double q_side_local = q_side[iq];
         double q_long_local = q_long[iq];
         double correl_local = Correlfun[iq];
-        if(correl_local < 0.0) continue;
+        if(correl_local < 1e-15) continue;
         double sigma_k_prime = Correlfun_err[iq]/correl_local;
 
         chi_sq += pow((log(correl_local/lambda)
@@ -494,7 +494,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_os_and_l(double
             if(q_mag_sq > q_fit_min*q_fit_min && q_mag_sq < q_fit*q_fit)
             {
                 double correl_local = Correlfun[iq];
-                if(correl_local < 0.0) continue;
+                if(correl_local < 1e-15) continue;
                 double sigma_k_prime = Correlfun_err[iq]/correl_local;
                     
                 double inv_sigma_k_prime_sq = 1./(sigma_k_prime*sigma_k_prime);
@@ -570,7 +570,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_os_and_l(double
             {
                 double prefactor = lambda*exp( -q_out_local*q_out_local*results[1] - q_side_local*q_side_local*results[2] - q_out_local*q_side_local*results[3]);
                 double correl_local = Correlfun[iq]/prefactor;
-                if(correl_local < 0.0) continue;
+                if(correl_local < 1e-15) continue;
                 double sigma_k_prime = Correlfun_err[iq]/prefactor/correl_local;
                     
                 double inv_sigma_k_prime_sq = 1./(sigma_k_prime*sigma_k_prime);
@@ -592,7 +592,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_os_and_l(double
         double q_side_local = q_side[iq];
         double q_long_local = q_long[iq];
         double correl_local = Correlfun[iq];
-        if(correl_local < 0.0) continue;
+        if(correl_local < 1e-15) continue;
         double sigma_k_prime = Correlfun_err[iq]/correl_local;
 
         chi_sq += pow((log(correl_local) - results[0] 
@@ -657,7 +657,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_l(double q_fit)
         if(q_mag_sq > q_fit_min*q_fit_min && q_mag_sq < q_fit*q_fit)
         {
             double correl_local = Correlfun[iq];
-            if(correl_local < 0.0) continue;
+            if(correl_local < 1e-15) continue;
             double sigma_k_prime = Correlfun_err[iq]/correl_local;
                 
             double inv_sigma_k_prime_sq = 1./(sigma_k_prime*sigma_k_prime);
@@ -730,7 +730,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_l(double q_fit)
         if(q_mag_sq > q_fit_min*q_fit_min && q_mag_sq < q_fit*q_fit)
         {
             double correl_local = Correlfun[iq];
-            if(correl_local < 0.0) continue;
+            if(correl_local < 1e-15) continue;
             double sigma_k_prime = Correlfun_err[iq]/correl_local;
 
             chi_sq += pow((log(correl_local) - results[0] 
@@ -796,7 +796,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_l_os(double q_f
         if(q_mag_sq > q_fit_min*q_fit_min && q_mag_sq < q_fit*q_fit)
         {
             double correl_local = Correlfun[iq];
-            if(correl_local < 0.0) continue;
+            if(correl_local < 1e-15) continue;
             double sigma_k_prime = Correlfun_err[iq]/correl_local;
                 
             double inv_sigma_k_prime_sq = 1./(sigma_k_prime*sigma_k_prime);
@@ -928,7 +928,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_l_ol(double q_f
         if(q_mag_sq > q_fit_min*q_fit_min && q_mag_sq < q_fit*q_fit)
         {
             double correl_local = Correlfun[iq];
-            if(correl_local < 0.0) continue;
+            if(correl_local < 1e-15) continue;
             double sigma_k_prime = Correlfun_err[iq]/correl_local;
                 
             double inv_sigma_k_prime_sq = 1./(sigma_k_prime*sigma_k_prime);
@@ -991,23 +991,33 @@ void fit_correlation::find_minimum_chisq_correlationfunction_o_s_l_ol(double q_f
          << endl;
 
     double chi_sq = 0.0;
+    int npoints = 0;
     for(int iq = 0; iq < qnpts; iq++)
     {
         double q_out_local = q_out[iq];
         double q_side_local = q_side[iq];
         double q_long_local = q_long[iq];
-        double correl_local = Correlfun[iq];
-        double sigma_k_prime = Correlfun_err[iq]/correl_local;
+        double q_mag_sq = (  q_out_local*q_out_local 
+                           + q_side_local*q_side_local 
+                           + q_long_local*q_long_local);
+        if(q_mag_sq > q_fit_min*q_fit_min && q_mag_sq < q_fit*q_fit)
+        {
+            double correl_local = Correlfun[iq];
+            if(correl_local < 1e-15) continue;
+            
+            double sigma_k_prime = Correlfun_err[iq]/correl_local;
 
-        chi_sq += pow((log(correl_local) - results[0] 
-                       + results[1]*q_out_local*q_out_local 
-                       + results[2]*q_side_local*q_side_local
-                       + results[3]*q_long_local*q_long_local
-                       + results[4]*q_out_local*q_long_local), 2)
-                  /sigma_k_prime/sigma_k_prime;
+            chi_sq += pow((log(correl_local) - results[0] 
+                           + results[1]*q_out_local*q_out_local 
+                           + results[2]*q_side_local*q_side_local
+                           + results[3]*q_long_local*q_long_local
+                           + results[4]*q_out_local*q_long_local), 2)
+                      /sigma_k_prime/sigma_k_prime;
+            npoints++;
+        }
     }
-    cout << "chi_sq/d.o.f = " << chi_sq/(qnpts - dim) << endl;
-    chi_sq_per_dof = chi_sq/(qnpts - dim);
+    chi_sq_per_dof = chi_sq/(npoints - dim);
+    cout << "chi_sq/d.o.f = " << chi_sq_per_dof << endl;
     
     lambda_Correl = lambda;
     R_out_Correl = R_out;
@@ -1062,7 +1072,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_full(double q_fit)
         if(q_mag_sq > q_fit_min*q_fit_min && q_mag_sq < q_fit*q_fit)
         {
             double correl_local = Correlfun[iq];
-            if(correl_local < 0.0) continue;
+            if(correl_local < 1e-15) continue;
             double sigma_k_prime = Correlfun_err[iq]/correl_local;
                 
             double inv_sigma_k_prime_sq = 1./(sigma_k_prime*sigma_k_prime);
@@ -1136,7 +1146,7 @@ void fit_correlation::find_minimum_chisq_correlationfunction_full(double q_fit)
         double q_side_local = q_side[iq];
         double q_long_local = q_long[iq];
         double correl_local = Correlfun[iq];
-        if(correl_local < 0.0) continue;
+        if(correl_local < 1e-15) continue;
         double sigma_k_prime = Correlfun_err[iq]/correl_local;
 
         chi_sq += pow((log(correl_local) - results[0] 
